@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class TimerManager : MonoBehaviour {
+public class TimerUI : MonoBehaviour {
     [SerializeField] TextMeshProUGUI timerText;
     [SerializeField] float remainingTime = 0f;
     private void Update() {
