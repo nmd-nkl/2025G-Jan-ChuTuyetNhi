@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6920072239674621199}
   - component: {fileID: -4153909191931338502}
   m_Layer: 0
-  m_Name: 4
+  m_Name: 4-EndPipe
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
