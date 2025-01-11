@@ -12,7 +12,7 @@ public class LvBuilder : EditorWindow {
     string originName = "Level";
     int gridW, gridH;
     float cellSize;
-    float pipeSize = 0.39f;
+    float pipeSize = 0.9735f;
     #endregion
     #region Selected Variables
     int currSelectedIdx = 0;
@@ -39,7 +39,7 @@ public class LvBuilder : EditorWindow {
                 break;
         }
     }
-
+    #region SetUp tab
     private void DrawSetupTab() {
         deleteIsOn = EditorGUILayout.Toggle("Delete Mode", deleteIsOn);
         EditorGUI.BeginDisabledGroup(deleteIsOn);
@@ -80,6 +80,8 @@ public class LvBuilder : EditorWindow {
         area.BuildCells();
         EditorUtility.SetDirty(buildGrid);
     }
+    #endregion
+    #region Pipes tab
     private void DrawPipesTab(string tab) {
         if (!AssetDatabase.IsValidFolder($"Assets/LevelEditor/{tab}")) {
             EditorGUILayout.HelpBox($"Assets/LevelEditor/{tab} missing!", MessageType.Error);
@@ -99,6 +101,7 @@ public class LvBuilder : EditorWindow {
         GUIContent[] contentsArray = contents.ToArray();
         selectedPipeIdx = GUILayout.SelectionGrid(selectedPipeIdx, contentsArray, 3);
     }
+    #endregion
     private Texture2D GetPreviewTexture(GameObject prefab) {
         return AssetPreview.GetAssetPreview(prefab);
     }
@@ -122,6 +125,7 @@ public class LvBuilder : EditorWindow {
             GameObject child = cell.transform.GetChild(i).gameObject;
             DestroyImmediate(child);
         }
+        EditorUtility.SetDirty(cell.transform);
     }
     private GameObject PlaceNewObject(string folder) {
         GameObject[] prefabs = GetObjects(GetObjectsPath(folder));
@@ -133,6 +137,7 @@ public class LvBuilder : EditorWindow {
 
         obj.transform.position = selectedCell.transform.position;
         obj.transform.localScale = new Vector2(pipeSize, pipeSize);
+        EditorUtility.SetDirty(obj);
         return obj;
     }
     private void RotateObjects(Cell cell, int angle) {
@@ -140,6 +145,7 @@ public class LvBuilder : EditorWindow {
             GameObject child = cell.transform.GetChild(i).gameObject;
             child.transform.Rotate(new Vector3(0, 0, angle));
         }
+        EditorUtility.SetDirty(cell.transform);
     }
     #endregion
     #region Process Selected Cell
