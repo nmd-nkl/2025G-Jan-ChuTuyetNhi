@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class BuildGrid : MonoBehaviour {
@@ -27,7 +26,6 @@ public class BuildGrid : MonoBehaviour {
         }
     }
     private void OnDrawGizmos() {
-        //Draw outline cubes
         for (int x = 0; x < size.x; x++) {
             for (int y = 0; y < size.y; y++) {
                 Vector3 pos = CalculatePos(x, y);

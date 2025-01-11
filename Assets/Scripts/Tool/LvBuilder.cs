@@ -18,6 +18,8 @@ public class LvBuilder : EditorWindow {
     int currSelectedIdx = 0;
     int selectedPipeIdx = 0;
     Cell selectedCell;
+    bool deleteIsOn = false;
+    bool rotateIsOn = false;
     #endregion
 
     [MenuItem("Level Builder/Open Builder")]
@@ -39,6 +41,11 @@ public class LvBuilder : EditorWindow {
     }
 
     private void DrawSetupTab() {
+        deleteIsOn = EditorGUILayout.Toggle("Delete Mode", deleteIsOn);
+        EditorGUI.BeginDisabledGroup(deleteIsOn);
+        rotateIsOn = EditorGUILayout.Toggle("Rotate Mode", rotateIsOn);
+        EditorGUI.EndDisabledGroup();
+        GUILayout.Space(20);
         originPos = EditorGUILayout.Vector3Field("Origin Location", originPos);
         originName = EditorGUILayout.TextField("Origin Name", originName);
         GUILayout.Space(10);
@@ -49,6 +56,8 @@ public class LvBuilder : EditorWindow {
         pipeSize = EditorGUILayout.Slider("Pipe Size", pipeSize, 0, 100);
 
         if (GUILayout.Button("Create Grid")) BuildGrid();
+        GUILayout.Space(30);
+
         if (GUILayout.Button("Export Grid to TXT")) {
             GameObject gridObject = GameObject.Find(originName);
             if (gridObject == null) {
@@ -88,7 +97,7 @@ public class LvBuilder : EditorWindow {
             contents.Add(new GUIContent(previewTexture, prefab.name));
         }
         GUIContent[] contentsArray = contents.ToArray();
-        selectedPipeIdx = GUILayout.SelectionGrid(selectedPipeIdx, contentsArray, 2);
+        selectedPipeIdx = GUILayout.SelectionGrid(selectedPipeIdx, contentsArray, 3);
     }
     private Texture2D GetPreviewTexture(GameObject prefab) {
         return AssetPreview.GetAssetPreview(prefab);
@@ -107,6 +116,7 @@ public class LvBuilder : EditorWindow {
         }
         return gameObjects.ToArray();
     }
+    #region Process Cell Base On Mode
     private void ClearOldObjects(Cell cell) {
         for (int i = 0; i < cell.transform.childCount; i++) {
             GameObject child = cell.transform.GetChild(i).gameObject;
@@ -125,17 +135,34 @@ public class LvBuilder : EditorWindow {
         obj.transform.localScale = new Vector2(pipeSize, pipeSize);
         return obj;
     }
+    private void RotateObjects(Cell cell, int angle) {
+        for (int i = 0; i < cell.transform.childCount; i++) {
+            GameObject child = cell.transform.GetChild(i).gameObject;
+            child.transform.Rotate(new Vector3(0, 0, angle));
+        }
+    }
+    #endregion
+    #region Process Selected Cell
     private void OnSelectionChange() {
         if (Selection.activeGameObject != null) {
             Cell area = Selection.activeGameObject.GetComponent<Cell>();
             if (area != null) {
                 selectedCell = area;
-                PlaceNewObject("Pipes");
+                if (deleteIsOn)
+                    ClearOldObjects(selectedCell);
+                else {
+                    if (rotateIsOn)
+                        RotateObjects(selectedCell, 90);
+                    else
+                        PlaceNewObject("Pipes");
+                }
             } else {
                 selectedCell = null;
             }
         }
     }
+    #endregion
+    #region File Process
     private void ExportGridToTxt(BuildGrid grid) {
         if (grid == null) {
             Debug.LogError("Grid is null, cannot export.");
@@ -210,4 +237,5 @@ public class LvBuilder : EditorWindow {
             }
         }
     }
+    #endregion
 }
