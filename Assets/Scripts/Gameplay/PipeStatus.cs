@@ -26,7 +26,7 @@ public class PipeStatus : MonoBehaviour {
         if (currStatus != prevStatus) {
             int status = currStatus ? 1 : -1;
             prevStatus = currStatus;
-            PipeEvents.TriggerStatusChanged(status);
+            GameManager.OnPipeStatusChangedInvoke(status);
         }
     }
     public void UpdatePrevStatus() {//Update when the Game enters Lv
