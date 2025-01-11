@@ -3,32 +3,33 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour {
     public static event Action<bool> OnPauseStateChanged;
+    public static event Action<int> OnPipeStatusChanged;
     public static event Action OnWinGame;
+
     public bool isPaused = false;
+    private int currIncorrectPipeCnt = 0;
 
     public void TogglePause() {
         isPaused = !isPaused;
         Time.timeScale = isPaused ? 0 : 1;
         OnPauseStateChanged?.Invoke(isPaused);
     }
+    public static void OnPipeStatusChangedInvoke(int status) {
+        OnPipeStatusChanged?.Invoke(status);
+    }
 
-    private int currIncorrectPipeCnt = 0;
     private void OnEnable() {
-        PipeEvents.RegisterStatusChanged(HandlePipeStatusChanged);
-        this.InitCount();
+        currIncorrectPipeCnt = 0;
+        OnPipeStatusChanged += HandlePipeStatusChanged;
     }
     private void OnDisable() {
-        PipeEvents.UnregisterStatusChanged(HandlePipeStatusChanged);
-    }
-    private void InitCount() {
-        currIncorrectPipeCnt = 0;
+        OnPipeStatusChanged -= HandlePipeStatusChanged;
     }
     private void HandlePipeStatusChanged(int status) {
         currIncorrectPipeCnt += status;
-        Debug.Log("Current Correct Pipes: " + currIncorrectPipeCnt);
+
         if (currIncorrectPipeCnt == 0) {
             OnWinGame?.Invoke();
-            Debug.Log("Win");
             UpdateUnlockedLevels();
         }
     }
@@ -37,7 +38,6 @@ public class GameManager : MonoBehaviour {
             LevelManager.UnlockedLevels++;
             PlayerPrefs.SetInt("UnlockedLevels", LevelManager.UnlockedLevels);
             PlayerPrefs.Save();
-            Debug.Log(LevelManager.UnlockedLevels);
         }
     }
 }
