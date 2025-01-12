@@ -5,17 +5,21 @@ public class GameManager : MonoBehaviour {
     public static event Action<bool> OnPauseStateChanged;
     public static event Action<int> OnPipeStatusChanged;
     public static event Action OnWinGame;
+    public static event Action OnGameOver;
 
-    public bool isPaused = false;
+    public static bool isPaused = false;
     private int currIncorrectPipeCnt = 0;
 
-    public void TogglePause() {
+    public static void TogglePause() {
         isPaused = !isPaused;
         Time.timeScale = isPaused ? 0 : 1;
         OnPauseStateChanged?.Invoke(isPaused);
     }
     public static void OnPipeStatusChangedInvoke(int status) {
         OnPipeStatusChanged?.Invoke(status);
+    }
+    public static void OnGameOverInvoke() {
+        OnGameOver?.Invoke();
     }
 
     private void OnEnable() {
@@ -27,7 +31,6 @@ public class GameManager : MonoBehaviour {
     }
     private void HandlePipeStatusChanged(int status) {
         currIncorrectPipeCnt += status;
-
         if (currIncorrectPipeCnt == 0) {
             OnWinGame?.Invoke();
             UpdateUnlockedLevels();
