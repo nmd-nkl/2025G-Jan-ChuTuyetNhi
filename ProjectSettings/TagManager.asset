@@ -8,11 +8,11 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - UserClick Layer
   - Water
   - UI
-  - 
-  - 
+  - Donut
+  - Trigger
   - 
   - 
   - 
