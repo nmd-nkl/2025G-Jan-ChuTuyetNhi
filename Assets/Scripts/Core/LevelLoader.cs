@@ -4,6 +4,7 @@ public class LevelLoader : MonoBehaviour {
     public Transform levelParent;
 
     private void Start() {
+        StarsSystems.stars = 0;
         int selectedLevel = LevelHandler.CurrLevel;
         string prefabName = "LevelPrefabs/Level-" + selectedLevel;
         GameObject levelPrefab = Resources.Load<GameObject>(prefabName);
