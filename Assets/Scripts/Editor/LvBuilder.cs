@@ -1,13 +1,11 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using System.IO;
 
 public class LvBuilder : EditorWindow {
     #region Editor Variables
-    string[] tabs = new string[] { "Setup", "Pipes" };
+    string[] tabs = new string[] { "Setup", "Prefabs" };
     Vector3 originPos;
     string originName = "Level";
     int gridW, gridH;
@@ -27,6 +25,7 @@ public class LvBuilder : EditorWindow {
         LvBuilder window = (LvBuilder)GetWindow(typeof(LvBuilder));
         window.Show();
     }
+
     private void OnGUI() {
         currSelectedIdx = GUILayout.Toolbar(currSelectedIdx, tabs);
 
@@ -35,10 +34,11 @@ public class LvBuilder : EditorWindow {
                 DrawSetupTab();
                 break;
             case 1:
-                DrawPipesTab("Pipes");
+                DrawPrefabsTab("Prefabs");
                 break;
         }
     }
+
     #region SetUp tab
     private void DrawSetupTab() {
         deleteIsOn = EditorGUILayout.Toggle("Delete Mode", deleteIsOn);
@@ -70,6 +70,7 @@ public class LvBuilder : EditorWindow {
 
         if (GUILayout.Button("Import Grid from TXT")) ImportGridFromTxt();
     }
+
     private void BuildGrid() {
         GameObject buildGrid = new GameObject();
         buildGrid.transform.position = originPos;
@@ -81,17 +82,16 @@ public class LvBuilder : EditorWindow {
         EditorUtility.SetDirty(buildGrid);
     }
     #endregion
-    #region Pipes tab
-    private void DrawPipesTab(string tab) {
-        if (!AssetDatabase.IsValidFolder($"Assets/LevelEditor/{tab}")) {
-            EditorGUILayout.HelpBox($"Assets/LevelEditor/{tab} missing!", MessageType.Error);
-            return;
-        }
-        GameObject[] prefabs = GetObjects(GetObjectsPath(tab));
+
+    #region Prefabs tab
+    private void DrawPrefabsTab(string tab) {
+        GameObject[] prefabs = GetObjects(tab);
+
         if (prefabs == null || prefabs.Length == 0) {
-            EditorGUILayout.HelpBox("No prefabs found in the folder.", MessageType.Info);
+            EditorGUILayout.HelpBox("No prefabs found in Resources/Prefabs.", MessageType.Info);
             return;
         }
+
         List<GUIContent> contents = new List<GUIContent>();
         foreach (GameObject prefab in prefabs) {
             if (prefab == null) continue;
@@ -102,24 +102,16 @@ public class LvBuilder : EditorWindow {
         selectedPipeIdx = GUILayout.SelectionGrid(selectedPipeIdx, contentsArray, 3);
     }
     #endregion
+
     private Texture2D GetPreviewTexture(GameObject prefab) {
         return AssetPreview.GetAssetPreview(prefab);
     }
-    private string[] GetObjectsPath(string folder) {
-        return AssetDatabase.FindAssets("t:GameObject", new string[] { $"Assets/LevelEditor/{folder}" })
-                        .Select(guid => AssetDatabase.GUIDToAssetPath(guid))
-                        .ToArray();
+
+    private GameObject[] GetObjects(string folder) {
+        return Resources.LoadAll<GameObject>($"{folder}/");
     }
-    private GameObject[] GetObjects(string[] paths) {
-        if (paths == null || paths.Length == 0) return null;
-        List<GameObject> gameObjects = new List<GameObject>();
-        foreach (string path in paths) {
-            GameObject obj = AssetDatabase.LoadAssetAtPath<GameObject>(path);
-            gameObjects.Add(obj);
-        }
-        return gameObjects.ToArray();
-    }
-    #region Process Cell Base On Mode
+
+    #region Process Cell Based On Mode
     private void ClearOldObjects(Cell cell) {
         for (int i = 0; i < cell.transform.childCount; i++) {
             GameObject child = cell.transform.GetChild(i).gameObject;
@@ -127,8 +119,9 @@ public class LvBuilder : EditorWindow {
         }
         EditorUtility.SetDirty(cell.transform);
     }
+
     private GameObject PlaceNewObject(string folder) {
-        GameObject[] prefabs = GetObjects(GetObjectsPath(folder));
+        GameObject[] prefabs = GetObjects(folder);
         GameObject selectedObject = prefabs[selectedPipeIdx];
         ClearOldObjects(selectedCell);
 
@@ -140,6 +133,7 @@ public class LvBuilder : EditorWindow {
         EditorUtility.SetDirty(obj);
         return obj;
     }
+
     private void RotateObjects(Cell cell, int angle) {
         for (int i = 0; i < cell.transform.childCount; i++) {
             GameObject child = cell.transform.GetChild(i).gameObject;
@@ -148,6 +142,7 @@ public class LvBuilder : EditorWindow {
         EditorUtility.SetDirty(cell.transform);
     }
     #endregion
+
     #region Process Selected Cell
     private void OnSelectionChange() {
         if (Selection.activeGameObject != null) {
@@ -160,7 +155,7 @@ public class LvBuilder : EditorWindow {
                     if (rotateIsOn)
                         RotateObjects(selectedCell, 90);
                     else
-                        PlaceNewObject("Pipes");
+                        PlaceNewObject("Prefabs");
                 }
             } else {
                 selectedCell = null;
@@ -168,6 +163,7 @@ public class LvBuilder : EditorWindow {
         }
     }
     #endregion
+
     #region File Process
     private void ExportGridToTxt(BuildGrid grid) {
         if (grid == null) {
@@ -180,7 +176,7 @@ public class LvBuilder : EditorWindow {
         string[,] matrix = grid.GridDataToStringMatrix();
 
         using (StreamWriter writer = new StreamWriter(path)) {
-            //Write Grid Data
+            // Write Grid Data
             writer.Write(originName);
             writer.WriteLine();
             writer.Write(grid.size.x);
@@ -191,7 +187,7 @@ public class LvBuilder : EditorWindow {
             writer.WriteLine();
             writer.Write(pipeSize);
             writer.WriteLine();
-            //Write Cells data
+            // Write Cells Data
             for (int y = (int)grid.size.y - 1; y >= 0; y--) {
                 for (int x = 0; x < (int)grid.size.x; x++) {
                     writer.Write(matrix[x, y] + ",");
@@ -201,19 +197,20 @@ public class LvBuilder : EditorWindow {
         }
         Debug.Log($"Grid exported to {path}");
     }
+
     private void ImportGridFromTxt() {
         string path = EditorUtility.OpenFilePanel("Import Grid from TXT", "", "txt");
         if (string.IsNullOrEmpty(path)) return;
         string[,] matrix;
         using (StreamReader reader = new StreamReader(path)) {
-            //Read Grid data
+            // Read Grid Data
             originName = reader.ReadLine();
             gridW = int.Parse(reader.ReadLine());
             gridH = int.Parse(reader.ReadLine());
             cellSize = float.Parse(reader.ReadLine());
             pipeSize = float.Parse(reader.ReadLine());
             matrix = new string[gridW, gridH];
-            //Read Cells Data
+            // Read Cells Data
             for (int y = gridH - 1; y >= 0; y--) {
                 string line = reader.ReadLine();
                 string[] values = line.Split(',');
@@ -230,13 +227,13 @@ public class LvBuilder : EditorWindow {
         }
         BuildGrid buildGrid = gridObject.GetComponent<BuildGrid>();
         GameObject[,] cells = buildGrid.cells;
-        for(int x = 0; x < gridW; x++) {
-            for(int y = 0; y < gridH; y++) {
+        for (int x = 0; x < gridW; x++) {
+            for (int y = 0; y < gridH; y++) {
                 if (matrix[x, y] == "-1") continue;
                 string[] values = matrix[x, y].Split(":");
                 selectedPipeIdx = int.Parse(values[0]);
                 selectedCell = cells[x, y].GetComponent<Cell>();
-                GameObject obj = PlaceNewObject("Pipes");
+                GameObject obj = PlaceNewObject("Prefabs");
                 Vector3 currentRotation = obj.transform.rotation.eulerAngles;
                 currentRotation.z = int.Parse(values[1]);
                 obj.transform.rotation = Quaternion.Euler(currentRotation);
