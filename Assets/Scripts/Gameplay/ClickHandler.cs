@@ -3,6 +3,7 @@ using UnityEngine;
 public class ClickHandler : MonoBehaviour {
     [SerializeField] bool isTurnOn = true;
     private void OnMouseDown() {
+        if(GameManager.isPaused) return; 
         this.HandleForceStatus();
     }
     private void HandleForceStatus() {
