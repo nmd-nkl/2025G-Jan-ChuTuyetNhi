@@ -13,6 +13,7 @@ public class PipeRotater : MonoBehaviour {
     }
     private void OnMouseDown() {
         if (!GameManager.isPaused && !isRotating) {
+            AudioManager.instance.Play(SoundEffect.ClickPop);
             targetAngle = (transform.eulerAngles.z + rotateAngle) % 360;
             StartCoroutine(RotatePipe());
         }

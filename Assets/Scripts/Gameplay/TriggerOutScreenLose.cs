@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class TriggerOutScreenLose : MonoBehaviour {
@@ -7,6 +5,7 @@ public class TriggerOutScreenLose : MonoBehaviour {
     private void OnTriggerExit2D(Collider2D collision) {
         if (collision.transform == donut.transform) {
             GameManager.OnGameOverInvoke();
+            GetComponent<PolygonCollider2D>().enabled = false;
         }
     }
 }
