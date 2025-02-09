@@ -313,24 +313,70 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sounds:
-  - name: buttonClick
+  - type: 0
+    outputMixer: {fileID: -7295908842844298398, guid: 07c923f811b530f41a1fa0fb13aa74c3, type: 2}
+    clip: {fileID: 8300000, guid: 41e42b3240b51d3418384c4867fed00e, type: 3}
+    loop: 0
     volume: 0.5
     pitch: 1
-    loop: 0
-    clip: {fileID: 8300000, guid: 41e42b3240b51d3418384c4867fed00e, type: 3}
     source: {fileID: 0}
-  - name: popupOpen
+  - type: 1
+    outputMixer: {fileID: -7295908842844298398, guid: 07c923f811b530f41a1fa0fb13aa74c3, type: 2}
+    clip: {fileID: 8300000, guid: 4b558df5e70b4424f9d1ec8fd424397c, type: 3}
+    loop: 0
     volume: 0.8
     pitch: 1
-    loop: 0
-    clip: {fileID: 8300000, guid: 4b558df5e70b4424f9d1ec8fd424397c, type: 3}
     source: {fileID: 0}
-  - name: selectUI
+  - type: 8
+    outputMixer: {fileID: -4392826741380878010, guid: 07c923f811b530f41a1fa0fb13aa74c3, type: 2}
+    clip: {fileID: 8300000, guid: 487d2b9f1f95ba8499d49d248d571d4e, type: 3}
+    loop: 0
     volume: 0.4
     pitch: 1
-    loop: 0
-    clip: {fileID: 8300000, guid: 487d2b9f1f95ba8499d49d248d571d4e, type: 3}
     source: {fileID: 0}
+  - type: 2
+    outputMixer: {fileID: -7295908842844298398, guid: 07c923f811b530f41a1fa0fb13aa74c3, type: 2}
+    clip: {fileID: 8300000, guid: 3490b3ff02cf913478790b33462233de, type: 3}
+    loop: 0
+    volume: 1
+    pitch: 1
+    source: {fileID: 0}
+  - type: 3
+    outputMixer: {fileID: -4392826741380878010, guid: 07c923f811b530f41a1fa0fb13aa74c3, type: 2}
+    clip: {fileID: 8300000, guid: 6557c8c7572503c4683390ad7a797808, type: 3}
+    loop: 1
+    volume: 1
+    pitch: 1
+    source: {fileID: 0}
+  - type: 4
+    outputMixer: {fileID: -7295908842844298398, guid: 07c923f811b530f41a1fa0fb13aa74c3, type: 2}
+    clip: {fileID: 8300000, guid: fd44d20ac0ccbb44b8c90fe27626f90a, type: 3}
+    loop: 0
+    volume: 0.8
+    pitch: 1
+    source: {fileID: 0}
+  - type: 5
+    outputMixer: {fileID: -7295908842844298398, guid: 07c923f811b530f41a1fa0fb13aa74c3, type: 2}
+    clip: {fileID: 8300000, guid: a70dcf78e6ffaa9478a30e89db42de00, type: 3}
+    loop: 0
+    volume: 1
+    pitch: 1
+    source: {fileID: 0}
+  - type: 6
+    outputMixer: {fileID: -4392826741380878010, guid: 07c923f811b530f41a1fa0fb13aa74c3, type: 2}
+    clip: {fileID: 8300000, guid: 42ec47b8738634b4e926d0376d54562b, type: 3}
+    loop: 0
+    volume: 1
+    pitch: 1
+    source: {fileID: 0}
+  - type: 7
+    outputMixer: {fileID: -4392826741380878010, guid: 07c923f811b530f41a1fa0fb13aa74c3, type: 2}
+    clip: {fileID: 8300000, guid: 0b35351d87a4c974182778ebe45142a9, type: 3}
+    loop: 0
+    volume: 1
+    pitch: 1
+    source: {fileID: 0}
+  audioMixer: {fileID: 24100000, guid: 07c923f811b530f41a1fa0fb13aa74c3, type: 2}
 --- !u!1 &702373214
 GameObject:
   m_ObjectHideFlags: 0

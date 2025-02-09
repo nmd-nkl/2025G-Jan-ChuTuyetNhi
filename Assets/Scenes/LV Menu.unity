@@ -158,7 +158,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 200, y: -70}
+  m_AnchoredPosition: {x: 200, y: -86}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &58924210
@@ -3460,7 +3460,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 120, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1186734938
 CanvasRenderer:
@@ -5638,8 +5638,8 @@ MonoBehaviour:
   heartsCountTxt: {fileID: 933000836}
   healTimeTxt: {fileID: 930658208}
   HeartIcon: {fileID: 1186734937}
-  maxHearts: 1
-  healTime: 10
+  maxHearts: 3
+  healTime: 20
   scaleDuration: 0.2
   moveDuration: 0.5
   starbounceHeight: 10
