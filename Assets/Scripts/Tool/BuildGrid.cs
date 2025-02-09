@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class BuildGrid : MonoBehaviour {
@@ -21,7 +19,6 @@ public class BuildGrid : MonoBehaviour {
                 cellScript.buildArea = this;
 
                 cells[x, y] = cell;
-                UnityEditor.EditorUtility.SetDirty(cell);
             }
         }
     }
@@ -41,12 +38,12 @@ public class BuildGrid : MonoBehaviour {
         for (int x = 0; x < size.x; x++) {
             for (int y = 0; y < size.y; y++) {
                 GameObject cell = cells[x, y];
-                PipeStatus pipe = cell.GetComponentInChildren<PipeStatus>();
+                PrefabData pipe = cell.GetComponentInChildren<PrefabData>();
                 if(pipe==null) {
                     matrix[x, y] = "-1";
                     continue;
                 }
-                matrix[x, y] = pipe.GetPipeType().ToString() + ":" + cell.transform.GetChild(0).rotation.eulerAngles.z.ToString();
+                matrix[x, y] = pipe.GetPrefabType().ToString() + ":" + cell.transform.GetChild(0).rotation.eulerAngles.z.ToString();
             }
         }
         return matrix;

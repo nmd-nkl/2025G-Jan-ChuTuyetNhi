@@ -7,34 +7,36 @@ public class StarsSystems : MonoBehaviour {
     [SerializeField] private Sprite fullStar;
     [SerializeField] private Sprite emptyStar;
 
-    [Header("Values")]
-    [SerializeField] private float maxTime = 60f;
-    [SerializeField] private float threeStarsPer = 0.67f;
-    [SerializeField] private float twoStarsPer = 0.33f;
-    public static int stars = 3;
-
-    private void OnEnable() {
-        this.CalculateStars();
-        this.ShowUpHearts();
+    public static int stars = 0;
+    #region Singleton
+    public static StarsSystems instance;
+    private void Awake() {
+        if (instance == null) {
+            instance = this;
+        } else {
+            Destroy(gameObject);
+            return;
+        }
     }
-
-    private void ShowUpHearts() {
+    #endregion
+    public void ShowUpStars() {
         for (int i = 0; i < starImages.Length; i++) {
             starImages[i].sprite = (i < stars) ? fullStar : emptyStar;
         }
     }
 
-    public void CalculateStars() {
+    public void SaveStarsData() {
         float currRemainingTime = GameManager.currRemainingTime;
-        float timeRatio = Mathf.Clamp01(currRemainingTime / maxTime);
-        if (timeRatio >= threeStarsPer) {
-            stars = 3;
-        } else if (timeRatio >= twoStarsPer) {
-            stars = 2;
-        } else if (timeRatio > 0f) {
-            stars = 1;
-        } else {
-            stars = 0;
+        SaveStars(LevelHandler.CurrLevel, stars);
+        this.ShowUpStars();
+    }
+    public void SaveStars(int level, int newStars) {
+        string key = "LevelStars_" + level;
+        int oldStars = PlayerPrefs.GetInt(key, 0);
+        if (newStars > oldStars) {
+            PlayerPrefs.SetInt(key, newStars);
+            PlayerPrefs.Save();
         }
+        this.ShowUpStars();
     }
 }

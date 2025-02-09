@@ -2,16 +2,6 @@
 using UnityEngine;
 
 public class GameManager : MonoBehaviour {
-    public static event Action<bool> OnPauseStateChanged;
-    public static event Action OnWinGame;
-    public static event Action OnGameOver;
-
-    public static bool isPaused = false;
-    private static bool isGameOverInvoked = false;
-    [Header("Timer")]
-    public float remainingTime = 0f;
-    public static float currRemainingTime = 0f;
-
     #region singleton
     public static GameManager instance { get; private set; }
     private void Awake() {
@@ -23,6 +13,24 @@ public class GameManager : MonoBehaviour {
         }
     }
     #endregion
+    #region Game Actions
+    public static event Action<bool> OnPauseStateChanged;
+    public static event Action OnWinGame;
+    public static event Action OnGameOver;
+    public static event Action<GameObject> OnAddStar;
+    #endregion
+    #region Game State
+    public static bool isPaused = false;
+    private static bool isGameOverInvoked = false;
+    #endregion
+    [Header("Timer")]
+    public float remainingTime = 0f;
+    public static float currRemainingTime = 0f;
+    [Header("Const String")]
+    public string donutName = "Donut";
+    private void Start() {
+        AudioManager.instance.Play(SoundEffect.BgMusic);
+    }
     public static void TogglePause() {
         isPaused = !isPaused;
         Time.timeScale = isPaused ? 0 : 1;
@@ -34,12 +42,6 @@ public class GameManager : MonoBehaviour {
             OnGameOver?.Invoke();
         }
     }
-    public static void ResetGameOverState() {
-        isGameOverInvoked = false;
-    }
-    public static void OnWinGameInvoke() {
-        OnWinGame?.Invoke();
-    }
     public string CalTime() {
         currRemainingTime = Mathf.Max(currRemainingTime - Time.deltaTime, 0f);
         int minutes = Mathf.FloorToInt(currRemainingTime / 60);
@@ -48,7 +50,8 @@ public class GameManager : MonoBehaviour {
         if (currRemainingTime == 0) OnGameOverInvoke();
         return currTime;
     }
-    public void ResetCountingTime() {
-        currRemainingTime = remainingTime;
-    }
+    public static void ResetGameOverState() => isGameOverInvoked = false;
+    public void ResetCountingTime() => currRemainingTime = remainingTime;
+    public static void OnWinGameInvoke() => OnWinGame?.Invoke();
+    public static void OnAddStarInvoke(GameObject gameObject) => OnAddStar?.Invoke(gameObject);
 }
