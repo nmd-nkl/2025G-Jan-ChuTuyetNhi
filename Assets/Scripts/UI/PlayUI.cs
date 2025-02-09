@@ -3,7 +3,7 @@ using UnityEngine.SceneManagement;
 
 public class PlayUI : MonoBehaviour {
     public void OnClickPlayMenu() {
-        AudioManager.instance.PlaySound("buttonClick");
+        AudioManager.instance.Play(SoundEffect.ButtonClick);
         ResetPlayerPrefs();
         SceneManager.LoadScene(1);
     }
