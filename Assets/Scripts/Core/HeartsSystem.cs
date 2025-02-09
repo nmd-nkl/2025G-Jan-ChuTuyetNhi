@@ -1,5 +1,4 @@
 ﻿using DG.Tweening;
-using System.Globalization;
 using TMPro;
 using UnityEngine;
 
@@ -93,7 +92,6 @@ public class HeartsSystem : MonoBehaviour {
             SaveLastHealTimestamp(Time.time);
         }
     }
-
     private static void SaveLastHealTimestamp(float _time) {
         lastHealTimestamp = _time;
         PlayerPrefs.SetFloat("LastHealTimestamp", lastHealTimestamp);

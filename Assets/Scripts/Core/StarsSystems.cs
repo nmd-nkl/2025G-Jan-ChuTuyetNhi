@@ -28,6 +28,7 @@ public class StarsSystems : MonoBehaviour {
     public void SaveStarsData() {
         float currRemainingTime = GameManager.currRemainingTime;
         SaveStars(LevelHandler.CurrLevel, stars);
+        this.ShowUpStars();
     }
     public void SaveStars(int level, int newStars) {
         string key = "LevelStars_" + level;
@@ -36,5 +37,6 @@ public class StarsSystems : MonoBehaviour {
             PlayerPrefs.SetInt(key, newStars);
             PlayerPrefs.Save();
         }
+        this.ShowUpStars();
     }
 }

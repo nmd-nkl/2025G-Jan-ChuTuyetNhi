@@ -23,9 +23,8 @@ public class LevelHandler : MonoBehaviour {
         }
     }
     private void EnterGameLv(int level) {
-        AudioManager.instance.PlaySound("selectUI");
+        AudioManager.instance.Play(SoundEffect.EnterLvMusic);
         CurrLevel = level;
-        GameManager.instance.ResetCountingTime();
         SceneManager.LoadScene("InGame");
     }
     private void CantEnterGameLv() {
