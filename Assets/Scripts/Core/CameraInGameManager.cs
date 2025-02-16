@@ -6,7 +6,7 @@ public class CameraInGameManager : MonoBehaviour {
     public static CameraInGameManager instance;
 
     [Header("General Settings")]
-    [SerializeField] private float waitToStartDonut = 1f;
+    public float waitToStartDonut = 1f;
     public CinemachineBrain cinemachineBrain;
     [SerializeField] private CinemachineVirtualCamera[] _allVirtualCameras;
 
@@ -19,14 +19,33 @@ public class CameraInGameManager : MonoBehaviour {
     [SerializeField] private int followDonutCameraIndex = 1;
     [SerializeField] private int activePriority = 100;
 
+    [Header("Drag Camera Settings")]
+    [SerializeField] private int DragCameraIdx = 2;
+    [SerializeField] private float dragSpeed = 2f;
+    [SerializeField] private float dragLimitX = 15f;
+    [SerializeField] private float dragLimitY = 10f;
+
+    private Vector2 lastMousePosition;
+    private bool dragPanMoveActive = false;
+    private bool dragMode = false;
+
     private void Awake() {
         if (instance == null) {
             instance = this;
         }
+        dragPanMoveActive = false;
     }
 
     private void Start() {
         HandleReviewMap();
+    }
+    private void Update() {
+        if (dragMode) {
+            HandleInput();
+            if (dragPanMoveActive) {
+                HandleDragToPanCamera();
+            }
+        }
     }
     /// <summary>
     /// Chuyển đổi giữa các virtual camera dựa vào index.
@@ -77,9 +96,62 @@ public class CameraInGameManager : MonoBehaviour {
     }
     private IEnumerator HandleCameraTransition() {
         yield return new WaitUntil(() => !cinemachineBrain.IsBlending);
+        UIInGame.instance.CountingDonut(waitToStartDonut);
         yield return new WaitForSeconds(waitToStartDonut);
         
         Donut.instance.SetDonutGravity(1);
         UIInGame.isCounting = true;
+        dragMode = true;
+    }
+
+    private void HandleInput() {
+        if (!dragMode) return; 
+        if (Input.GetMouseButtonDown(0)) {
+            if (IsClickingOnPipe()) {
+                return; 
+            }
+            SwitchCamera(DragCameraIdx);
+            dragPanMoveActive = true;
+            lastMousePosition = Input.mousePosition;
+        }
+        if (Input.GetMouseButtonUp(0)) {
+            SwitchCamera(followDonutCameraIndex);
+            dragPanMoveActive = false;
+        }
+    }
+    private void HandleDragToPanCamera() {
+        if (!dragMode) return;
+
+        Vector2 mouseMovementDelta = Vector2.zero;
+
+        if (Input.touchCount > 0) { 
+            Touch touch = Input.GetTouch(0);
+            mouseMovementDelta = touch.deltaPosition;
+        } else {
+            mouseMovementDelta = (Vector2)Input.mousePosition - lastMousePosition;
+            lastMousePosition = Input.mousePosition;
+        }
+
+        Vector3 moveDir = new Vector3(-mouseMovementDelta.x, -mouseMovementDelta.y, 0);
+        Vector3 newPosition = transform.position + moveDir * dragSpeed * Time.deltaTime;
+
+        newPosition.x = Mathf.Clamp(newPosition.x, -dragLimitX, dragLimitX);
+        newPosition.y = Mathf.Clamp(newPosition.y, -dragLimitY, dragLimitY);
+
+        transform.position = newPosition;
+    }
+    private bool IsClickingOnPipe() {
+        Vector2 worldPoint;
+
+        if (Input.touchCount > 0) {
+            Touch touch = Input.GetTouch(0);
+            worldPoint = Camera.main.ScreenToWorldPoint(touch.position);
+        } else if (Input.GetMouseButtonDown(0)) {
+            worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        } else {
+            return false;
+        }
+        RaycastHit2D hit = Physics2D.Raycast(worldPoint, Vector2.zero);
+        return hit.collider != null && hit.collider.gameObject.name == "Pipe";
     }
 }

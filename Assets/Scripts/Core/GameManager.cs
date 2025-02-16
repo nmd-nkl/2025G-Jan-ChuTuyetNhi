@@ -50,6 +50,9 @@ public class GameManager : MonoBehaviour {
         if (currRemainingTime == 0) OnGameOverInvoke();
         return currTime;
     }
+    public float GetPlayedTime() {
+        return remainingTime - currRemainingTime;
+    }
     public static void ResetGameOverState() => isGameOverInvoked = false;
     public void ResetCountingTime() => currRemainingTime = remainingTime;
     public static void OnWinGameInvoke() => OnWinGame?.Invoke();

@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.Audio;
 using System;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 public class AudioManager : MonoBehaviour {
     [System.Serializable]
@@ -31,6 +32,7 @@ public class AudioManager : MonoBehaviour {
             return;
         }
         InitSounds();
+        LoadSettings();
     }
     #endregion
     private void InitSounds() {
@@ -79,5 +81,38 @@ public class AudioManager : MonoBehaviour {
             }
         }
     }
+    public void SetMasterVolume(float volume) {
+        float dB = Mathf.Lerp(-80f, 0f, volume);
+        audioMixer.SetFloat("MasterVolume", dB);
+        PlayerPrefs.SetFloat("MasterVolume", volume);
+        PlayerPrefs.Save();
+    }
 
+    public void SetMusicVolume(float volume) {
+        float dB = Mathf.Lerp(-80f, 0f, volume);
+        audioMixer.SetFloat("MusicVolume", dB);
+        PlayerPrefs.SetFloat("MusicVolume", volume);
+        PlayerPrefs.Save();
+    }
+
+    public void SetSFXVolume(float volume) {
+        float dB = Mathf.Lerp(-80f, 0f, volume);
+        audioMixer.SetFloat("SFXVolume", dB);
+        PlayerPrefs.SetFloat("SFXVolume", volume);
+        PlayerPrefs.Save();
+    }
+
+    private void LoadSettings() {
+        float master = PlayerPrefs.GetFloat("MasterVolume", 1f);
+        float music = PlayerPrefs.GetFloat("MusicVolume", 1f);
+        float sfx = PlayerPrefs.GetFloat("SFXVolume", 1f);
+
+        SetMasterVolume(master);
+        SetMusicVolume(music);
+        SetSFXVolume(sfx);
+    }
+    public void SetUpSlider(Slider slider, string prefsKey) {
+        float savedValue = PlayerPrefs.GetFloat(prefsKey, 1f);
+        slider.SetValueWithoutNotify(savedValue);
+    }
 }

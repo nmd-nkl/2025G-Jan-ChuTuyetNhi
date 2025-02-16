@@ -1,7 +1,8 @@
 using UnityEngine;
+using DG.Tweening;
 using UnityEngine.SceneManagement;
 
-public class LevelHandler : MonoBehaviour {
+public class LevelManager : MonoBehaviour {
     public ButtonLvObj[] levelButtons;
     public static int CurrLevel = 0;
 
@@ -16,19 +17,27 @@ public class LevelHandler : MonoBehaviour {
         }
     }
     public void OnClickLevelMenu(int level) {
-        if (HeartsSystem.hearts != 0) {
-           EnterGameLv(level);
-        } else {
-            CantEnterGameLv();
-        }
+        levelButtons[level-1].gameObject.transform.DOScale(0.95f, 0.1f).OnComplete(() => {
+            levelButtons[level - 1].gameObject.transform.DOScale(1f, 0.2f).OnComplete(() => {
+                if (HeartsSystem.hearts != 0) EnterGameLv(level);
+                else CantEnterGameLv();
+            });
+        });
+    }
+    public void OnMoreHeartsPress() {
+        LvUIManager.instance.WarnZeroInfoEnable();
+    }
+    public void OnAdsPress() {
+        Debug.Log("Setup Ads");
     }
     private void EnterGameLv(int level) {
+        DOTween.KillAll();
         AudioManager.instance.Play(SoundEffect.EnterLvMusic);
         CurrLevel = level;
         SceneManager.LoadScene("InGame");
     }
     private void CantEnterGameLv() {
-        LvUI.instance.WarnZeroInfoEnable();
+        LvUIManager.instance.WarnZeroInfoEnable();
     }
     private void Start() {
         UpdateLevelStars();
