@@ -2,11 +2,15 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using DG.Tweening;
-using UnityEngine.Audio;
+using UnityEngine.UI;
+using System.Collections;
 
 public class UIInGame : MonoBehaviour {
     #region UI Elements
     [Header("UI")]
+    [SerializeField] RectTransform starCountUI;
+    [SerializeField] RectTransform timerUI;
+    [SerializeField] private RectTransform WhiteBG;
     [SerializeField] private RectTransform settingsUI;
     [SerializeField] private RectTransform pauseButton;
     [SerializeField] private RectTransform pauseUI;
@@ -19,6 +23,14 @@ public class UIInGame : MonoBehaviour {
     [SerializeField] private TextMeshProUGUI timerText;
     [SerializeField] private TextMeshProUGUI recordText;
     [SerializeField] private TextMeshProUGUI StarCountTxt;
+    [SerializeField] TextMeshProUGUI currLvWin;
+    [SerializeField] TextMeshProUGUI currLvLose;
+    [SerializeField] TextMeshProUGUI donutCount;
+
+    [Header("Sliders")]
+    public Slider masterSlider;
+    public Slider musicSlider;
+    public Slider sfxSlider;
     #endregion
 
     #region Animation Settings
@@ -65,8 +77,37 @@ public class UIInGame : MonoBehaviour {
         }
     }
     #endregion
+    
+    #region singleton
+    public static UIInGame instance { get; private set; }
+    private void Awake() {
+        if (instance == null) {
+            instance = this;
+        } else {
+            Destroy(gameObject);
+        }
+    }
+    #endregion
 
     #region UI Handling
+    public void CountingDonut(float maxTime) {
+        donutCount.gameObject.SetActive(true);
+        donutCount.text = maxTime.ToString();
+        StartCoroutine(CountdownCoroutine(maxTime));
+    }
+
+    private IEnumerator CountdownCoroutine(float maxTime) {
+        float timer = maxTime;
+
+        while (timer > 0) {
+            timer -= Time.deltaTime;
+            donutCount.text = Mathf.Ceil(timer).ToString();
+            yield return null;
+        }
+
+        donutCount.gameObject.SetActive(false);
+    }
+
     private void ResetPauseUI() {
         pauseButton.gameObject.SetActive(true);
         pauseUI.anchoredPosition = new Vector2(0, -Screen.height);
@@ -88,14 +129,20 @@ public class UIInGame : MonoBehaviour {
 
     #region Button Actions
     public void OnRestartPress() {
-        AudioManager.instance.Play(SoundEffect.BgMusic);
-        AudioManager.instance.Play(SoundEffect.ButtonClick);
-        GameManager.TogglePause();
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        DOTween.KillAll();
+        if (HeartsSystem.hearts != 0) {
+            AudioManager.instance.Play(SoundEffect.BgMusic);
+            AudioManager.instance.Play(SoundEffect.ButtonClick);
+            GameManager.TogglePause();
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        } else {
+            OnExitLevelPress();
+        }
     }
     public void OnPausePress() {
         AudioManager.instance.Pause(SoundEffect.ClockTimeUp);
         AudioManager.instance.Play(SoundEffect.ButtonClick);
+        WhiteBG.gameObject.SetActive(true);
         pauseButton.gameObject.SetActive(false);
         pauseUI.gameObject.SetActive(true);
         GameManager.TogglePause();
@@ -106,6 +153,7 @@ public class UIInGame : MonoBehaviour {
         pauseUI.DOScale(Vector3.one, 1f).SetEase(Ease.OutBack).SetUpdate(true);
     }
     public void OnResumeGamePress() {
+        WhiteBG.gameObject.SetActive(false);
         AudioManager.instance.Play(SoundEffect.ButtonClick);
         pauseButton.gameObject.SetActive(true);
         pauseUI.DOAnchorPos(new Vector2(0, -Screen.height), 0.5f)
@@ -124,6 +172,10 @@ public class UIInGame : MonoBehaviour {
         AudioManager.instance.Play(SoundEffect.BgMusic);
     }
     public void OnSettingsPress() {
+        AudioManager.instance.SetUpSlider(masterSlider, "MasterVolume");
+        AudioManager.instance.SetUpSlider(musicSlider, "MusicVolume");
+        AudioManager.instance.SetUpSlider(sfxSlider, "SFXVolume");
+
         AudioManager.instance.Play(SoundEffect.ButtonClick);
 
         pauseUI.gameObject.SetActive(false);
@@ -140,39 +192,50 @@ public class UIInGame : MonoBehaviour {
                 pauseUI.gameObject.SetActive(true);
             });
     }
+    public void OnNextLvPress() {
+        LevelManager.CurrLevel++;
+        OnRestartPress();
+    }
     #endregion
 
     #region Game Events
     public void OnWinGame() {
+        timerUI.gameObject.SetActive(false);
+        starCountUI.gameObject.SetActive(false);
         AudioManager.instance.StopAll();
         AudioManager.instance.Play(SoundEffect.WinMusic);
 
         pauseButton.gameObject.SetActive(false);
         winUI.gameObject.SetActive(true);
-        recordText.text = timerText.text;
+        recordText.text = Mathf.Ceil(GameManager.instance.GetPlayedTime()).ToString() + " s";
+        currLvWin.text = "Level " + LevelManager.CurrLevel;
         
         winUI.localScale = Vector3.one * 0.6f;
         winUI.DOScale(Vector3.one, 1f).SetEase(Ease.OutBack).SetUpdate(true);
         AnimateStars();
 
         GameManager.TogglePause();
-        LevelHandler.UnlockNextLevel();
+        LevelManager.UnlockNextLevel();
         StarsSystems.instance.SaveStarsData();
     }
 
     public void OnGameOver() {
+        timerUI.gameObject.SetActive(false);
+        starCountUI.gameObject.SetActive(false);
+
         AudioManager.instance.StopAll();
         AudioManager.instance.Play(SoundEffect.LoseMusic);
 
         pauseButton.gameObject.SetActive(false);
         gameOverUI.gameObject.SetActive(true);
-        
+        currLvLose.text = "Level " + LevelManager.CurrLevel;
+
         gameOverUI.localScale = Vector3.one * 0.6f;
         gameOverUI.DOScale(Vector3.one, 1f).SetEase(Ease.OutBack).SetUpdate(true);
 
         GameManager.TogglePause();
         HeartsSystem.instance.LoseHeart();
-        StarsSystems.instance.SaveStars(LevelHandler.CurrLevel, 0);
+        StarsSystems.instance.SaveStars(LevelManager.CurrLevel, 0);
     }
     #endregion
 
@@ -214,9 +277,9 @@ public class UIInGame : MonoBehaviour {
                     });
     }
     #endregion
-    #region Audio Settings
-    public void SetMasterVolume(float volume) => AudioManager.instance.audioMixer.SetFloat("MasterVolume", Mathf.Lerp(-80f, 0f, volume));
-    public void SetMusicVolume(float volume) => AudioManager.instance.audioMixer.SetFloat("MusicVolume", Mathf.Lerp(-80f, 0f, volume));
-    public void SetSFXVolume(float volume) => AudioManager.instance.audioMixer.SetFloat("SFXVolume", Mathf.Lerp(-80f, 0f, volume));
+    #region HandleSilders
+    public void SetMasterVolume(float volume) => AudioManager.instance.SetMasterVolume(volume);
+    public void SetMusicVolume(float volume) => AudioManager.instance.SetMusicVolume(volume);
+    public void SetSFXVolume(float volume) => AudioManager.instance.SetSFXVolume(volume);
     #endregion
 }
