@@ -14,10 +14,4 @@ public class Donut : MonoBehaviour {
     public void SetDonutGravity(float _scale) {
         rb.gravityScale =  _scale;
     }
-    void OnCollisionEnter2D(Collision2D collision) {
-        if (collision.gameObject.name == "Wall") {
-            //AudioManager.instance.PlaySound("donut");
-            Debug.Log("played");
-        }
-    }
 }

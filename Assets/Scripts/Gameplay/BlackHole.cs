@@ -9,7 +9,7 @@ public class BlackHole : MonoBehaviour {
 
     private void Awake() {
         if (donut == null) {
-            GameObject donutObj = GameObject.Find("Donut");
+            GameObject donutObj = GameObject.Find(GameManager.instance.donutName);
             if (donutObj != null) 
                 donut = donutObj.GetComponent<Rigidbody2D>();
         }
@@ -33,11 +33,6 @@ public class BlackHole : MonoBehaviour {
 
     private void OnTriggerExit2D(Collider2D other) {
         donut.gravityScale = 1f;
-        if (isTurnOn && other.attachedRigidbody == donut) {
-            if (Vector2.Distance(donut.transform.position, blackHoleCenter.position) < 0.5f) {
-                donut.transform.position = blackHoleCenter.position;
-                donut.velocity = Vector2.zero;
-            }
-        }
+        donut.velocity = Vector2.zero;
     }
 }
