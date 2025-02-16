@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class StarsSystems : MonoBehaviour {
@@ -22,12 +22,18 @@ public class StarsSystems : MonoBehaviour {
     public void ShowUpStars() {
         for (int i = 0; i < starImages.Length; i++) {
             starImages[i].sprite = (i < stars) ? fullStar : emptyStar;
+            //Do sprite empty Star nhỏ hơn so với FullStar
+            if (starImages[i].sprite == emptyStar) {
+                starImages[i].gameObject.transform.localScale = new Vector3(0.8f, 0.8f, 0.8f);
+            } else {
+                starImages[i].gameObject.transform.localScale = Vector3.one;
+            }
         }
     }
 
     public void SaveStarsData() {
         float currRemainingTime = GameManager.currRemainingTime;
-        SaveStars(LevelHandler.CurrLevel, stars);
+        SaveStars(LevelManager.CurrLevel, stars);
         this.ShowUpStars();
     }
     public void SaveStars(int level, int newStars) {

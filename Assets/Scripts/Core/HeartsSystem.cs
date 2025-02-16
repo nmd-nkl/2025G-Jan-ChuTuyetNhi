@@ -8,6 +8,7 @@ public class HeartsSystem : MonoBehaviour {
     [SerializeField] TextMeshProUGUI healTimeTxt;
     [Header("UI")]
     [SerializeField] RectTransform HeartIcon;
+    [SerializeField] RectTransform AdsButton;
 
     [Header("Data")]
     public int maxHearts = 3;
@@ -20,7 +21,6 @@ public class HeartsSystem : MonoBehaviour {
     #region Singleton & Awake
     public static HeartsSystem instance;
     private void Awake() {
-        GetHeartsData();
         if (instance == null) {
             instance = this;
         } else {
@@ -30,6 +30,9 @@ public class HeartsSystem : MonoBehaviour {
     }
     #endregion
 
+    private void Start() {
+        GetHeartsData();
+    }
     private void Update() {
         ShowUpHearts();
         CalHealHeartInGame();
@@ -39,26 +42,33 @@ public class HeartsSystem : MonoBehaviour {
         heartsCountTxt.text = hearts.ToString();
 
         if (hearts < maxHearts) {
+            if(hearts==0) AdsButton.gameObject.SetActive(true);
             timeLeft = healTime - (Time.time - lastHealTimestamp);
             timeLeft = Mathf.Max(0, timeLeft);
             int minutes = Mathf.FloorToInt(timeLeft / 60);
             int seconds = Mathf.FloorToInt(timeLeft % 60);
             healTimeTxt.text = string.Format("{0:00}:{1:00}", minutes, seconds);
         } else {
-            healTimeTxt.text = "Full";
+            healTimeTxt.text = "FULL";
+            AdsButton.gameObject.SetActive(false);
         }
     }
 
     private void GetHeartsData() {
         hearts = PlayerPrefs.GetInt("Hearts", maxHearts);
-        lastHealTimestamp = PlayerPrefs.GetFloat("LastHealTimestamp", Time.time);
+        string lastHealStr = PlayerPrefs.GetString("LastHealTimestamp", System.DateTime.UtcNow.ToString());
+        lastHealTimestamp = (float)(System.DateTime.UtcNow - System.DateTime.Parse(lastHealStr)).TotalSeconds;
         CalculateHeartsOnStart();
     }
 
     private void CalculateHeartsOnStart() {
-        float timePassed = Time.time - lastHealTimestamp;
+        float timePassed = (float)(System.DateTime.UtcNow - System.DateTime.Parse(PlayerPrefs.GetString("LastHealTimestamp", System.DateTime.UtcNow.ToString()))).TotalSeconds;
+        if (timePassed < 0) timePassed = 0;
         int heartsToHeal = Mathf.FloorToInt(timePassed / healTime);
-        HealHeart(heartsToHeal);
+
+        if (heartsToHeal > 0) {
+            HealHeart(heartsToHeal);
+        }
 
         if (hearts < maxHearts) {
             lastHealTimestamp = Time.time - (timePassed % healTime);
@@ -68,7 +78,6 @@ public class HeartsSystem : MonoBehaviour {
 
         SaveLastHealTimestamp(lastHealTimestamp);
     }
-
     private void CalHealHeartInGame() {
         if (hearts < maxHearts) {
             float timeSinceLastHeal = Time.time - lastHealTimestamp;
@@ -79,8 +88,8 @@ public class HeartsSystem : MonoBehaviour {
         }
     }
 
-    private void HealHeart(int _hearts) {
-        if(hearts < maxHearts && _hearts != 0) AnimHeart();
+    public void HealHeart(int _hearts) {
+        if (hearts < maxHearts && _hearts != 0) LvUIManager.instance.AnimHeart(HeartIcon);
         hearts = Mathf.Min(maxHearts, hearts + _hearts);
         SaveHearts();
     }
@@ -88,31 +97,16 @@ public class HeartsSystem : MonoBehaviour {
     public void LoseHeart() {
         hearts = Mathf.Max(0, hearts - 1);
         SaveHearts();
-        if (hearts < maxHearts) {
-            SaveLastHealTimestamp(Time.time);
-        }
+        SaveLastHealTimestamp(Time.time);
     }
     private static void SaveLastHealTimestamp(float _time) {
         lastHealTimestamp = _time;
-        PlayerPrefs.SetFloat("LastHealTimestamp", lastHealTimestamp);
+        PlayerPrefs.SetString("LastHealTimestamp", System.DateTime.UtcNow.ToString()); 
         PlayerPrefs.Save();
     }
-
     private static void SaveHearts() {
         PlayerPrefs.SetInt("Hearts", hearts);
         PlayerPrefs.Save();
-    }
-
-    public float scaleDuration = 0.2f;
-    public float moveDuration = 0.5f;
-    public float starbounceHeight = 10f;
-    public void AnimHeart() {
-        Sequence heartSequence = DOTween.Sequence();
-        heartSequence.Append(HeartIcon.transform.DOScale(0.8f, scaleDuration * 0.5f))
-                    .Append(HeartIcon.transform.DOScale(1.2f, scaleDuration))
-                    .Append(HeartIcon.transform.DOScale(1f, scaleDuration * 0.5f))
-                    .Join(HeartIcon.transform.DOLocalMoveY(starbounceHeight, moveDuration * 0.3f).SetRelative().SetEase(Ease.OutQuad))
-                    .Append(HeartIcon.transform.DOLocalMoveY(-starbounceHeight, moveDuration * 0.3f).SetRelative().SetEase(Ease.InQuad));
     }
     private void OnDisable() {
         DOTween.KillAll();
