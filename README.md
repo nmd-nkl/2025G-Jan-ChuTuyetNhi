@@ -47,4 +47,4 @@ https://github.com/user-attachments/assets/98fa05e1-6868-4c1f-a778-cc2e04833428
 
 ---
 
-> 🎓 Đây là sản phẩm đầu tiên Chu thực hiện tại [CLB Nhà Sáng Tạo Game PTIT](https://www.facebook.com/gamecreatorsclub), nơi Chu có cơ hội học hỏi và phát triển đam mê làm game.
+> 🎓 Đây là sản phẩm đầu tiên thực hiện tại [CLB Nhà Sáng Tạo Game PTIT](https://www.facebook.com/gamecreatorsclub), nơi mình có cơ hội học hỏi và phát triển đam mê làm game.
